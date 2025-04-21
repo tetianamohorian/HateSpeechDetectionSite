@@ -1,5 +1,3 @@
-
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import json
@@ -11,15 +9,15 @@ import hashlib
 
 import time
 
-
+import os
 
 app = Flask(__name__)
 CORS(app)
 
-app.config['CACHE_TYPE'] = 'SimpleCache' 
+app.config['CACHE_TYPE'] = 'SimpleCache'
 cache = Cache(app)
 
-model_path = "./hate_speech_model/final_model"
+model_path = "tetianamohorian/hate_speech_model"
 
 
 tokenizer = AutoTokenizer.from_pretrained(model_path)
@@ -48,18 +46,18 @@ def predict():
         with torch.no_grad():
             outputs = model(**inputs)
             predictions = torch.argmax(outputs.logits, dim=1).item()
-        
+
         prediction_label = "Pravdepodobne toxický" if predictions == 1 else "Neutrálny text"
-        
+
         cache.set(text_hash, prediction_label)
-        
+
         response = app.response_class(
             response=json.dumps({"prediction": prediction_label}, ensure_ascii=False),
             status=200,
             mimetype="application/json"
         )
-        
-        
+
+
 
 
         return response
