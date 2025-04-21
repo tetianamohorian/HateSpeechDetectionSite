@@ -9,7 +9,7 @@ const ChatInput = ({ onSubmit }) => {
     console.log("Formulár bol odoslaný!", input); // Добавили лог
     if (input.trim()) {
       try {
-      const response = await fetch("http://localhost:5000/api/predict", {
+      const response = await fetch("/api/predict", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ text: input }),
