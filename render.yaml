@@ -6,3 +6,4 @@ services:
     repo: https://github.com/tetianamohorian/HateSpeechDetectionSite
     branch: main
     autoDeploy: true
+    startCommand: docker-compose up --build
