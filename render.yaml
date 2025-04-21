@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: hate-speech-app
-    env: docker-compose
-    plan: free
-    repo: https://github.com/tetianamohorian/HateSpeechDetectionSite
-    branch: main
-    autoDeploy: true
-    startCommand: docker-compose up --build
