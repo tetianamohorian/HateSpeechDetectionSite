@@ -1,0 +1,9 @@
+torch
+transformers
+datasets
+scikit-learn
+peft
+flask
+flask-cors
+flask_caching
+psycopg2-binary

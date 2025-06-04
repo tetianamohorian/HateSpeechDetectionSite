@@ -1,0 +1,359 @@
+
+@keyframes backgroundAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes pulseText {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.pulse {
+  animation: pulseText 1.5s infinite;
+}
+
+::-webkit-scrollbar       { width: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255,255,255,.3);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255,255,255,.5);
+}
+
+.button-historia
+{
+  margin-top: 7px;
+  margin-bottom: 7px;
+  align-items: center;
+}
+
+.button-historia:hover
+{
+  background-color: #1A1A1A99;
+}
+
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.3); 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+
+.app-container {
+  min-height: 100vh;
+  width: 100vw;
+  background: url('./assets/images/image.png') no-repeat center center/cover;
+  backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  justify-content: space-between;
+  animation:  rotateBackground 60s linear infinite;
+}
+
+
+
+@keyframes rotateBackground {
+  0% {
+    background-position: 20% 20%;
+  }
+
+  50%
+  {
+    background-position: 60% 60%;
+  }
+
+  100% {
+    background-position: 20% 20%;
+  }
+}
+
+
+
+.header-container {
+  width: 100%;
+  background: rgba(26, 26, 26, 0.6); 
+  backdrop-filter: blur(10px); 
+  padding: 20px 20px;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); 
+}
+
+
+.app-title {
+  font-size: 2.2rem;
+  width:100%;
+  font-weight: bold; 
+  color: white;
+  text-align: center;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2); 
+  padding-bottom: 5px;
+}
+
+.reset-button {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.5); 
+  padding: 8px;
+  cursor: pointer;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.reset-button:hover {
+  color: white;
+  transform: scale(1.1);
+}
+
+.chat-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.input-container {
+  /*border-top: 1px solid #333;*/
+  padding: 20px 24px;
+  background: rgba(26, 26, 26, 0.6); 
+  backdrop-filter: blur(10px); 
+  position: sticky;
+  bottom: 0;
+  border-radius: 20px;
+  overflow: hidden;
+  
+}
+
+
+
+
+.input-wrapper {
+  display: flex;
+  gap: 12px;
+  max-width: 100%;
+}
+
+.text-input {
+  flex: 1;
+  background: #252525;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 16px;
+  color:  #E0E0E0; 
+  font-size: 15px;
+}
+
+.text-input::placeholder {
+  color: #808080;
+}
+
+.text-input:focus {
+  outline: none;
+}
+.submit-button {
+  background: #007AFF;
+  border: none;
+  border-radius: 6px;
+  width: 55px; 
+  height: 55px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-button:hover {
+  background: #005ECF;
+}
+
+.submit-button svg {
+  width: 35px !important;  
+  height: 35px !important;
+  color: white !important;
+}
+
+
+
+.info-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  padding: 20px;
+  /*background: rgba(255, 255, 255, 0.07); */
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(12px); 
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+  animation: fadeIn 1s ease-in-out;
+}
+
+
+.info-container h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.info-container p {
+  font-size: 1.2rem;
+  opacity: 0.85;
+}
+
+
+.app-title {
+  font-size: 2.2rem;
+  font-weight: bold;
+  color: white;
+  text-align: center;
+}
+
+
+/*.reset-button {
+  display: none;
+}*/
+
+
+.footer-container {
+  background: rgba(26, 26, 26, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 20px;
+  text-align: center;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+.footer-icons {
+  display: flex;
+  gap: 15px;
+}
+
+.footer-icons a {
+  color: white;
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.footer-icons a:hover {
+  transform: scale(1.2);
+  color: #007AFF;
+}
+
+
+@media (max-width: 550px) 
+{
+  .info-container
+  {
+    width: 90%; 
+    padding: 15px;
+  }
+
+  .header-container {
+    justify-content: center;
+    width: 100%;
+    padding-left:0;
+  }
+
+  .app-title {
+    font-size: 1.8rem;
+  }
+
+  .text-input {
+    width: calc(100% - 60px);
+  }
+
+  .submit-button {
+    width: 50px;
+    height: 50px;
+  }
+
+
+  .footer-container
+  {
+    padding-left: 5px;
+  }
+
+
+}
+
+
+@media (max-width: 426px) 
+{
+
+  .info-container {
+    width: 90%;
+    padding: 10px;
+    margin-top: -20px;
+  }
+
+  .app-title {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .info-container p {
+    font-size: 1rem; /* Уменьшаем размер текста */
+    margin-bottom: 15px; /* Добавляем отступ под текстом */
+  }
+
+  .input-container {
+/* Убеждаемся, что форма остается на своем месте */
+    padding: 10px;
+  }
+
+
+
+
+  .submit-button {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+  }
+}
+
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}

@@ -1,0 +1,33 @@
+version: "3.8"
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "5174:5174"
+    depends_on:
+      - backend
+    restart: always
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    restart: always
+    environment:
+      - DATABASE_URL=postgresql://user:password@db:5432/mydb
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
