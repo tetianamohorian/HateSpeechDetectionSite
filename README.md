@@ -1,33 +1,33 @@
 # Hate Speech Detector
 
-## 1. Opis čo robí aplikácia
+## 1. Application Overview
 
-Aplikácia **Hate Speech Detector** slúži na analýzu zadaného textu s cieľom určiť, či ide o nenávistný alebo neutrálny obsah. Využíva trénovaný model umelej inteligencie na klasifikáciu textov. Používateľ môže cez webové rozhranie zadať ľubovoľný text a aplikácia okamžite vráti klasifikáciu spolu s možnosťou zobrazenia histórie.
+The **Hate Speech Detector** application analyzes a given text to determine whether it contains hate speech or neutral content. It uses a trained AI model for text classification. Users can input any text through the web interface, and the application immediately returns the classification result along with an option to view history.
 
-Všetky predikcie sa ukladajú do databázy PostgreSQL a zároveň sa synchronizujú do súboru `history.json`, ktorý frontend využíva ako zdroj na zobrazenie histórie. Okrem predikcie aplikácia poskytuje aj REST API na správu histórie a jej vymazanie. Webové rozhranie aj API sú zabezpečené cez HTTPS.
+All predictions are stored in a PostgreSQL database and also synchronized into a `history.json` file, which the frontend uses to display the history. In addition to predictions, the app provides a REST API for history management and deletion. Both the web interface and the API are secured via HTTPS.
 
-Model bol trénovaný na slovenskom datasete s využitím metódy LoRA (PEFT), čo umožnilo efektívne doladenie modelu s minimálnym počtom trénovateľných parametrov.
+The model was trained on a Slovak-language dataset using the LoRA (PEFT) technique, allowing efficient fine-tuning with a minimal number of trainable parameters.
 
 ---
 
-## 2. Slovný opis použitého verejného klaudu a objektov
+## 2. Description of Cloud Usage and Objects
 
 - **Cloud**: Google Cloud Platform (GCP)
-- **Služby GCP**:
-  - **Google Cloud Run**: hostovanie kontajnera s Flask backendom a React frontendom
-  - **Artifact Registry**: uložisko pre Docker image
-  - **Cloud SQL (PostgreSQL)**: relačná databáza na uchovanie predikcií
+- **GCP Services**:
+  - **Google Cloud Run**: hosting the container with Flask backend and React frontend
+  - **Artifact Registry**: storage for Docker image
+  - **Cloud SQL (PostgreSQL)**: relational database for storing predictions
 
-- **Docker objekty**:
+- **Docker Objects**:
   - Multistage `Dockerfile`:
-    - `node:18` na build React aplikácie
-    - `python:3.10-slim` pre backend (Flask + transformers)
-    - Frontend sa kopíruje do `/app/static/`
+    - `node:18` for building the React app
+    - `python:3.10-slim` for the backend (Flask + transformers)
+    - The frontend is copied to `/app/static/`
 
-- **Trvalý zväzok**:
-  - Cloud SQL PostgreSQL a `history.json`
+- **Persistent Storage**:
+  - Cloud SQL PostgreSQL and `history.json`
 
-### Štruktúra tabuľky `history`:
+### Structure of `history` table:
 ```sql
 CREATE TABLE IF NOT EXISTS history (
     id SERIAL PRIMARY KEY,
@@ -36,58 +36,53 @@ CREATE TABLE IF NOT EXISTS history (
     timestamp TIMESTAMP NOT NULL
 );
 ```
-Popis polí:
+Field descriptions:
 
-- `id`: automatický primárny kľúč (číselný identifikátor)
-- `text`: vstupný text, ktorý užívateľ zadal
-- `prediction`: výstup modelu (napr. "Neutrálny text")
-- `timestamp`: dátum a čas, kedy bol text spracovaný
+- `id`: auto-incrementing primary key (numeric ID)
+- `text`: user-submitted input text
+- `prediction`: model output (e.g., "Neutral text")
+- `timestamp`: date and time when the text was processed
 
 ---
 
-## 3. Štruktúra projektu
-
-Projekt má nasledovnú štruktúru:
+## 3. Project Structure
 
 ```
 skuska/
 ├── Dockerfile               # multistage Dockerfile (frontend + backend)
-├── prepare-app-cloud.sh           # skript na nasadenie aplikácie do GCP
-├── remove-app-cloud.sh            # skript na odstránenie služby
-├── history.json             # synchronizovaný záznam histórie (čítaný frontend)
-├── frontend/                # React frontend projekt (vite)
-│   └── ...                  # komponenty, assets, App.jsx atď.
+├── prepare-app-cloud.sh     # deployment script for GCP
+├── remove-app-cloud.sh      # script to delete the service
+├── history.json             # synchronized history file (read by frontend)
+├── frontend/                # React frontend project (Vite)
+│   └── ...                  # components, assets, App.jsx, etc.
 ├── backend/                 # Flask backend
-│   ├── app.py               # hlavný backend súbor (Flask API)
-│   └── requirements.txt     # python balíčky (model sa sťahuje dynamicky z Hugging Face)
+│   ├── app.py               # main backend file (Flask API)
+│   └── requirements.txt     # Python packages (model fetched dynamically from Hugging Face)
 ```
 
 ---
 
-## 4. Opis odovzdaných súborov a konfigurácie:
+## 4. Description of Submitted Files and Configuration
 
-### `backend/app.py`: hlavný backend aplikácie vo Flasku. 
-Obsahuje:
+### `backend/app.py`: Main backend file using Flask.
+Includes:
+- `/api/predict`: endpoint for AI predictions
+- `/api/history`, `/api/history/db`, `/api/history/reset`: manage history.
+  - `/api/history`: reads from `history.json` (auto-synced with the database)
+  - `/api/history/db`: reads directly from PostgreSQL, ordered by timestamp
+  - `/api/history/reset`: clears all records in the `history` table and resets `history.json` to an empty list
 
-- endpoint `/api/predict` na AI predikciu
+- PostgreSQL connection via `psycopg2` using `DATABASE_URL`
+- Automatic model download from Hugging Face on startup
 
-- `/api/history`, `/api/history/db` a `/api/history/reset` - slúžia na prácu s históriou. /api/history číta zo súboru history.json, ktorý je automaticky synchronizovaný s databázou. /api/history/db číta priamo z PostgreSQL databázy a zobrazí zoznam záznamov zoradených podľa času. /api/history/reset vymaže všetky záznamy z tabuľky history v databáze a zároveň prepíše history.json na prázdny zoznam.
+### `frontend/`: React project built with Vite
+- Contains UI components, API calls, results and history display
 
-- prepojenie na PostgreSQL (cez psycopg2 a DATABASE_URL)
+### `backend/`: Contains `app.py` and `requirements.txt`
 
-- uloženie a synchronizáciu histórie
+### Dockerfile: Combines frontend and backend into a single image
 
-- automatické stiahnutie modelu z Hugging Face pri štarte aplikácie
-
-### `frontend/`: React projekt vytvorený cez Vite. 
-- Obsahuje komponenty pre UI, API volania, zobrazovanie výsledkov a histórie.
-
-### `backend/`: obsahuje `app.py`, `requirements.txt`
-
-### Dockerfile: kombinácia frontend + backend do jedineho obrazu
-
-Výrez Dockerfile:
-
+Example:
 ```dockerfile
 FROM node:18 AS frontend
 WORKDIR /frontend
@@ -101,104 +96,99 @@ RUN apt-get update && apt-get install -y gcc libpq-dev && pip install -r require
 COPY --from=frontend /frontend/dist /app/static
 CMD ["python", "app.py"]
 ```
-### `prepare-app-cloud.sh`: 
-Bash skript, ktorý:
-- definuje všetky dôležité premenne (názov projektu, región, názov obrazu a databázy)
-- zostaví Docker image pomocou gcloud builds submit
-- nasadí image do Google Cloud Run cez gcloud run deploy
-- nastaví environmentálnu premennú DATABASE_URL
-- prepojí službu so zvolenou databázou cez --add-cloudsql-instances
-- vyžaduje spustený gcloud CLI a prihláseného používateľa
 
-### `remove-app-cloud.sh`: 
-Bash skript, ktorý:
-- pomocou gcloud run services delete zmaže existujúcu službu z Google Cloud Run
-- využíva parameter --quiet na potlačenie výzvy na potvrdenie
-- vyžaduje rovnaké prostredie ako skript `prepare-app-cloud.sh`
+### `prepare-app-cloud.sh`:
+A bash script that:
+- defines project variables
+- builds the Docker image via `gcloud builds submit`
+- deploys it to Google Cloud Run
+- sets `DATABASE_URL`
+- links the service with Cloud SQL using `--add-cloudsql-instances`
+- requires gcloud CLI and active login
+
+### `remove-app-cloud.sh`:
+Bash script that:
+- deletes the Cloud Run service via `gcloud run services delete`
+- uses `--quiet` to suppress confirmation prompts
 
 ### `history.json`: 
-- vygenerovaný automaticky zo stavu databázy (synchronizuje sa pri každom uložení nového záznamu pomocou funkcie `sync_history_file()`)
+- Auto-generated from the database
+- Synced on each new entry using the `sync_history_file()` function
 
-### Pripojenie k databáze:
+### Database Connection
 
-Premenná:
-
+Environment variable:
 ```
 DATABASE_URL=postgresql://user:password@/mydb?host=/cloudsql/hatespeechsite:europe-central2:hate-db
 ```
 
 ---
-## 5. Návod na použitie aplikácie v prehliadači:
 
-1. Otvorte v prehliadači URL:
+## 5. Web Application Usage
+
+1. Open the following URL in a browser:
 ```
 https://hate-detektor-19732600168.europe-central2.run.app/
 ```
-2. Zadajte text do formulára
-3. Kliknite na "Skontrolovať"
-4. Zobrazí sa výsledok klasifikácie
-5. Pod formulárom sa nachádza sekcia histórie
+2. Enter a text string
+3. Click "Check"
+4. The classification result will be displayed
+5. History section is shown below the form
 
-Pozamka: môžete resetovat' historiu priamo cez terminál príkazom:
+Note: You can reset the history using the following command:
 ```
 curl -X POST https://hate-detektor-19732600168.europe-central2.run.app/api/history/reset | jq
 ```
 
 ---
-## 6. Podmienky pre spustenie skriptov:
 
-### `prepare-app-cloud.sh`:
+## 6. Requirements to Run the Scripts
 
-vyžaduje:
+### `prepare-app-cloud.sh` requires:
 
-- GCP projekt s povolenými službami: Artifact Registry, Cloud Build, Cloud Run, Cloud SQL
-- `gcloud` CLI s aktívnym prihlásením a nastaveným projektom
+- GCP project with services enabled: Artifact Registry, Cloud Build, Cloud Run, Cloud SQL
+- Active login with `gcloud` CLI and configured project
 
-vykonáva:
-
-- build Docker image
-- push do Artifact Registry
-- deploy do Cloud Run + pripojenie k Cloud SQL + nastavenie DATABASE_URL
-- používa premenné prostredia pre názvy služby a databázy
-- skript je opakovateľný a nevyžaduje manuálnu interakciu
+Performs:
+- Docker image build
+- Push to Artifact Registry
+- Deploy to Cloud Run + Cloud SQL integration + setting env variable
+- Uses environment variables for service/database names
+- Script is repeatable and non-interactive
 
 ### `remove-app-cloud.sh`:
 
-- odstráni službu z Cloud Run
-- spustenie je okamžité bez potreby interakcie
-- tichý režim (bez potvrdenia) pomocou parametra --quiet
-
+- Removes the Cloud Run service
+- Runs immediately with `--quiet` (no confirmation needed)
 
 ---
 
-## 7. Externé zdroje:
+## 7. External Resources
 
-Trénovaný model:
+Trained Model:
+- Model used: `slovak-t5-base`, fine-tuned manually
+- Trained on a Slovak dataset of annotated sentences for hate speech detection
+- Used PEFT (Parameter-Efficient Fine-Tuning) via LoRA (Low-Rank Adaptation)
+- Achieved 74% accuracy on the test set
 
-- Použitý model: `slovak-t5-base`, finetunovaný osobne 
-- Model bol trénovaný na slovenskom datasete pozostávajúcom z anotovaných viet so zameraním na identifikáciu nenávistného prejavu
-- Tréning prebehol s využitím metódy PEFT (Parameter-Efficient Fine-Tuning) konkrétne cez technológiu LoRA (Low-Rank Adaptation), čo umožnilo efektívne doladiť model s minimálnym počtom trénovateľných parametrov
-- Model dosiahol presnosť 74 % pri testovaní na slovenskom dátovom korpuse
+Model: `tetianamohorian/hate_speech_model` on Hugging Face (BERT-based)
 
-Model: `tetianamohorian/hate_speech_model` z HuggingFace (transformers model BERT)
-
-Knižnice a frameworky:
-
-  - `transformers`, `torch` pre modelovanie
-  - `Flask`, `psycopg2`, `pytz` pre backend 
-  - `React`, `Vite`, `fetch` pre frontend
+Libraries & Frameworks:
+- `transformers`, `torch` for AI modeling
+- `Flask`, `psycopg2`, `pytz` for backend
+- `React`, `Vite`, `fetch` for frontend
 
 ---
-## 8. Zhrnutie a vykonané kroky:
 
-- ✅ Vytvorený frontend v Reacte s použitím Vite
-- ✅ Vytvorený backend vo Flasku s REST API
-- ✅ Nasadený AI model trénovaný na slovenskom datasete (slovak-t5-base, LoRA, 74 % presnosť)
-- ✅ Prepojenie aplikácie s databázou Cloud SQL (PostgreSQL)
-- ✅ Vytvorená databázová tabuľka history s políčkami: id, text, prediction, timestamp
-- ✅ Implementovaná synchronizácia databázy s `history.json`
-- ✅ Nasadenie aplikácie pomocou Dockeru a Google Cloud Run
-- ✅ Vytvorené shellové skripty na deploy (prepare-app-cloud.sh) a odstránenie (remove-app-cloud.sh)
-- ✅ Zabezpečený verejný prístup cez HTTPS
-- ✅ Otestované API: `/api/predict`, `/api/history`, `/api/history/reset`, `/api/history/db`
+## 8. Summary of Completed Work
 
+- ✅ Frontend created with React + Vite
+- ✅ Backend built with Flask and REST API
+- ✅ AI model deployed (Slovak-t5-base, LoRA, 74% accuracy)
+- ✅ Connected to Cloud SQL (PostgreSQL)
+- ✅ Database table `history` with fields: id, text, prediction, timestamp
+- ✅ Synced database with `history.json`
+- ✅ Deployment using Docker and Google Cloud Run
+- ✅ Deployment and removal scripts created (`prepare-app-cloud.sh`, `remove-app-cloud.sh`)
+- ✅ Secured HTTPS access
+- ✅ Tested endpoints: `/api/predict`, `/api/history`, `/api/history/reset`, `/api/history/db`
